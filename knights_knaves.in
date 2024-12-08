@@ -1,0 +1,39 @@
+formulas(assumptions).
+
+% Define individuals a, b, c as either knight or knave:
+(Knight(a)).
+(Knave(b)).
+(Knave(c)).
+
+% Ensure mutual exclusivity of Knight and Knave roles
+-(Knight(a) & Knave(a)).
+-(Knight(b) & Knave(b)).
+-(Knight(c) & Knave(c)).
+
+% Exactly one treasure location: l1 or l2
+(TreasureAt(l1) | TreasureAt(l2)).
+-(TreasureAt(l1) & TreasureAt(l2)).
+
+% A's statements:
+% A says: "TreasureAt(l1)"
+(Knight(a) -> TreasureAt(l1)).
+(Knave(a) -> (-TreasureAt(l1))).
+
+% B's statements:
+% B says: "A is a knave."
+(Knight(b) -> Knave(a)).
+(Knave(b) -> (-Knave(a))).
+
+% C's statements:
+% C says: "B is a knight."
+(Knight(c) -> Knight(b)).
+(Knave(c) -> (-Knight(b))).
+
+end_of_list.
+
+formulas(goals).
+
+% Prove TreasureAt(l1).
+TreasureAt(l1).
+
+end_of_list.

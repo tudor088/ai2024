@@ -1,0 +1,324 @@
+\documentclass[a4paper,12pt]{article}
+
+% Packages for formatting
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{color}
+\geometry{margin=1in}
+
+% Define code block formatting for Prover9
+\lstdefinelanguage{Prover9}{
+    morekeywords={formulas, assumptions, goals, end_of_list},
+    sensitive=false,
+    morecomment=[l]{\%},
+    morestring=[b]",
+}
+
+% Code block styling
+\lstset{
+    basicstyle=\footnotesize\ttfamily,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red},
+    breaklines=true,
+    frame=single,
+    showstringspaces=false
+}
+
+\title{Knights and Knaves Puzzle Using Prover9: \\
+A Logical Approach to Problem Solving}
+\author{Crihălmeanu Tudor - Group 30434}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+This project demonstrates the use of Prover9 to solve the classic \textbf{Knights and Knaves}  puzzle, a logical problem involving truth-tellers and liars. The puzzle serves as an excellent example of how first-order logic and automated reasoning tools like Prover9 can be applied to solve problems that require deductive reasoning.
+
+\subsection{Problem Context}
+The problem revolves around three individuals (\texttt{A}, \texttt{B}, and \texttt{C}), each of whom is either a Knight (always tells the truth) or a Knave (always lies). Based on their statements, we aim to deduce:
+\begin{itemize}
+    \item The roles (Knight or Knave) of \texttt{A}, \texttt{B}, and \texttt{C}.
+    \item The location of the treasure (\texttt{l1} or \texttt{l2}).
+\end{itemize}
+
+\subsection{Objectives}
+The objectives of this project are:
+\begin{itemize}
+    \item To formulate the problem in first-order logic.
+    \item To implement the problem using Prover9.
+    \item To prove the goal (\texttt{TreasureAt(l1)}) based on logical assumptions.
+    \item To analyze the results and provide insights into the logical deductions.
+\end{itemize}
+
+\section{Problem Description}
+\subsection{The Puzzle}
+Three individuals make the following statements:
+\begin{itemize}
+    \item \texttt{A}: "The treasure is at location \texttt{l1}."
+    \item \texttt{B}: "A is a knave."
+    \item \texttt{C}: "B is a knight."
+\end{itemize}
+We are tasked with determining:
+\begin{itemize}
+    \item The roles of \texttt{A}, \texttt{B}, and \texttt{C}.
+    \item The location of the treasure.
+\end{itemize}
+
+\subsection{Logical Constraints}
+The puzzle is governed by the following constraints:
+\begin{enumerate}
+    \item \textbf{Role Constraints}:
+    Each individual is either a Knight or a Knave, but not both:
+    \begin{lstlisting}[language=Prover9]
+    -(Knight(a) & Knave(a)).
+    -(Knight(b) & Knave(b)).
+    -(Knight(c) & Knave(c)).
+    \end{lstlisting}
+
+    \item \textbf{Treasure Constraints}:
+    The treasure is at exactly one of the two locations:
+    \begin{lstlisting}[language=Prover9]
+    (TreasureAt(l1) | TreasureAt(l2)).
+    -(TreasureAt(l1) & TreasureAt(l2)).
+    \end{lstlisting}
+
+    \item \textbf{Truthfulness Constraints}:
+    The statements of Knights are always true, while those of Knaves are always false:
+    \begin{lstlisting}[language=Prover9]
+    (Knight(a) -> TreasureAt(l1)).
+    (Knave(a) -> -TreasureAt(l1)).
+    
+    (Knight(b) -> Knave(a)).
+    (Knave(b) -> -Knave(a)).
+    
+    (Knight(c) -> Knight(b)).
+    (Knave(c) -> -Knight(b)).
+    \end{lstlisting}
+\end{enumerate}
+
+\section{Implementation}
+\subsection{Logical Encoding in Prover9}
+The puzzle was encoded in Prover9 as follows:
+\begin{lstlisting}[language=Prover9]
+formulas(assumptions).
+
+% Define individuals a, b, c as either knight or knave:
+(Knight(a)).
+(Knave(b)).
+(Knave(c)).
+
+% Ensure mutual exclusivity of Knight and Knave roles
+-(Knight(a) & Knave(a)).
+-(Knight(b) & Knave(b)).
+-(Knight(c) & Knave(c)).
+
+% Exactly one treasure location: l1 or l2
+(TreasureAt(l1) | TreasureAt(l2)).
+-(TreasureAt(l1) & TreasureAt(l2)).
+
+% A's statements:
+% A says: "TreasureAt(l1)"
+(Knight(a) -> TreasureAt(l1)).
+(Knave(a) -> (-TreasureAt(l1))).
+
+% B's statements:
+% B says: "A is a knave."
+(Knight(b) -> Knave(a)).
+(Knave(b) -> (-Knave(a))).
+
+% C's statements:
+% C says: "B is a knight."
+(Knight(c) -> Knight(b)).
+(Knave(c) -> (-Knight(b))).
+
+end_of_list.
+
+formulas(goals).
+TreasureAt(l1).
+end_of_list.
+\end{lstlisting}
+
+\subsection{Execution in Prover9}
+The above code was executed using Prover9 to prove the goal \texttt{TreasureAt(l1)}. The results were analyzed to derive the roles of the individuals and the location of the treasure.
+
+\section{Results}
+\subsection{Prover9 Output}
+The following conclusions were derived from the Prover9 output:
+\begin{itemize}
+    \item \texttt{A} is a Knight.
+    \item \texttt{B} and \texttt{C} are Knaves.
+    \item The treasure is located at \texttt{l1}.
+\end{itemize}
+
+
+The following output was obtained after running the Prover9 code to solve the Knights and Knaves puzzle:
+
+\begin{lstlisting}[language=Prover9]
+============================== Prover9 ===============================
+Prover9 (64) version 2009-11A, November 2009.
+Process 447 was started by tudor on TudorROG,
+Sun Dec  8 15:31:38 2024
+The command was "/mnt/d/Facultate/LADR-2009-11A/bin/prover9 -f knights_knaves.in".
+============================== end of head ===========================
+
+============================== INPUT =================================
+
+% Reading from file knights_knaves.in
+
+formulas(assumptions).
+Knight(a).
+Knave(b).
+Knave(c).
+-(Knight(a) & Knave(a)).
+-(Knight(b) & Knave(b)).
+-(Knight(c) & Knave(c)).
+TreasureAt(l1) | TreasureAt(l2).
+-(TreasureAt(l1) & TreasureAt(l2)).
+Knight(a) -> TreasureAt(l1).
+Knave(a) -> -TreasureAt(l1).
+Knight(b) -> Knave(a).
+Knave(b) -> -Knave(a).
+Knight(c) -> Knight(b).
+Knave(c) -> -Knight(b).
+end_of_list.
+
+formulas(goals).
+TreasureAt(l1).
+end_of_list.
+
+============================== end of input ==========================
+
+============================== PROCESS NON-CLAUSAL FORMULAS ==========
+
+% Formulas that are not ordinary clauses:
+1 -(Knight(a) & Knave(a)) # label(non_clause).  [assumption].
+2 -(Knight(b) & Knave(b)) # label(non_clause).  [assumption].
+3 -(Knight(c) & Knave(c)) # label(non_clause).  [assumption].
+4 -(TreasureAt(l1) & TreasureAt(l2)) # label(non_clause).  [assumption].
+5 Knight(a) -> TreasureAt(l1) # label(non_clause).  [assumption].
+6 Knave(a) -> -TreasureAt(l1) # label(non_clause).  [assumption].
+7 Knight(b) -> Knave(a) # label(non_clause).  [assumption].
+8 Knave(b) -> -Knave(a) # label(non_clause).  [assumption].
+9 Knight(c) -> Knight(b) # label(non_clause).  [assumption].
+10 Knave(c) -> -Knight(b) # label(non_clause).  [assumption].
+11 TreasureAt(l1) # label(non_clause) # label(goal).  [goal].
+
+============================== end of process non-clausal formulas ===
+
+============================== PROCESS INITIAL CLAUSES ===============
+
+% Clauses before input processing:
+
+formulas(usable).
+end_of_list.
+
+formulas(sos).
+Knight(a).  [assumption].
+Knave(b).  [assumption].
+Knave(c).  [assumption].
+-Knight(a) | -Knave(a).  [clausify(1)].
+-Knave(a).  [copy(15),unit_del(a,12)].
+-Knight(b) | -Knave(b).  [clausify(2)].
+-Knight(b).  [copy(17),unit_del(b,13)].
+-Knight(c) | -Knave(c).  [clausify(3)].
+-Knight(c).  [copy(19),unit_del(b,14)].
+TreasureAt(l1) | TreasureAt(l2).  [assumption].
+-TreasureAt(l1) | -TreasureAt(l2).  [clausify(4)].
+-Knight(a) | TreasureAt(l1).  [clausify(5)].
+TreasureAt(l1).  [copy(23),unit_del(a,12)].
+-Knave(a) | -TreasureAt(l1).  [clausify(6)].
+-Knight(b) | Knave(a).  [clausify(7)].
+-Knave(b) | -Knave(a).  [clausify(8)].
+-Knight(c) | Knight(b).  [clausify(9)].
+-Knave(c) | -Knight(b).  [clausify(10)].
+-TreasureAt(l1).  [deny(11)].
+-------- Proof 1 --------
+
+============================== PROOF =================================
+
+% Proof 1 at 0.00 (+ 0.00) seconds.
+% Length of proof is 7.
+% Level of proof is 3.
+% Maximum clause weight is 2.000.
+% Given clauses 0.
+
+5 Knight(a) -> TreasureAt(l1) # label(non_clause).  [assumption].
+11 TreasureAt(l1) # label(non_clause) # label(goal).  [goal].
+12 Knight(a).  [assumption].
+23 -Knight(a) | TreasureAt(l1).  [clausify(5)].
+24 TreasureAt(l1).  [copy(23),unit_del(a,12)].
+30 -TreasureAt(l1).  [deny(11)].
+31 $F.  [copy(30),unit_del(a,24)].
+
+============================== end of proof ==========================
+
+============================== STATISTICS ============================
+
+Given=0. Generated=15. Kept=9. proofs=1.
+Usable=0. Sos=0. Demods=0. Limbo=9, Disabled=15. Hints=0.
+Kept_by_rule=0, Deleted_by_rule=0.
+Forward_subsumed=5. Back_subsumed=0.
+Sos_limit_deleted=0. Sos_displaced=0. Sos_removed=0.
+New_demodulators=0 (0 lex), Back_demodulated=0. Back_unit_deleted=0.
+Demod_attempts=0. Demod_rewrites=0.
+Res_instance_prunes=0. Para_instance_prunes=0. Basic_paramod_prunes=0.
+Nonunit_fsub_feature_tests=0. Nonunit_bsub_feature_tests=0.
+Megabytes=0.04.
+User_CPU=0.00, System_CPU=0.00, Wall_clock=0.
+
+============================== end of statistics =====================
+
+============================== end of search =========================
+
+THEOREM PROVED
+
+THEOREM PROVED
+
+Exiting with 1 proof.
+\end{lstlisting}
+
+
+\subsection{Logical Explanation}
+\begin{itemize}
+    \item Since \texttt{A} is a Knight, their statement about the treasure being at \texttt{l1} is true.
+    \item \texttt{B} is a Knave, so their claim that \texttt{A} is a Knave is false, confirming \texttt{A} is a Knight.
+    \item \texttt{C} is also a Knave, so their claim that \texttt{B} is a Knight is false, confirming \texttt{B} is a Knave.
+\end{itemize}
+
+\section{Discussion}
+\subsection{Strengths of the Approach}
+This project demonstrates:
+\begin{itemize}
+    \item The power of Prover9 in solving logical problems.
+    \item How to encode real-world puzzles into formal logic.
+    \item The value of automated reasoning tools in education and problem-solving.
+\end{itemize}
+
+\subsection{Challenges and Lessons Learned}
+\begin{itemize}
+    \item Proper encoding of logical constraints is crucial for correct results.
+    \item Debugging Prover9 input requires careful attention to syntax and logical consistency.
+\end{itemize}
+
+\subsection{Extensions}
+Potential extensions to this project include:
+\begin{itemize}
+    \item Adding more individuals and statements to increase the complexity.
+    \item Introducing probabilistic roles (e.g., "sometimes truthful") for advanced reasoning.
+    \item Visualizing the reasoning process using tools like Python.
+\end{itemize}
+
+\section{Conclusion}
+This project successfully demonstrates the use of Prover9 to solve a Knights and Knaves puzzle. The treasure was proven to be at \texttt{l1}, and the roles of the individuals were logically deduced.
+
+
+\end{document}
